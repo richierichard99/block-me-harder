@@ -1,5 +1,6 @@
 import requests
 import json
+import pandas
 
 
 def get_latest_block_hash():
@@ -23,11 +24,19 @@ def get_last_n_transactions(raw_block, n):
         out.append(raw_block['tx'][i])
     return out
 
+def extract_to_addresses(transaction):
+    addresses = set()
+    out = transaction["out"]
+    for x in out:
+        addresses.add(x["addr"])
+    return addresses
+
+# def groupAndSortAddresses()
+
 
 print(get_latest_block_hash())
 
 example_block = get_raw_block(get_latest_block_hash())
 
-for transaction in get_last_n_transactions(example_block, 3):
-    print(transaction)
-
+for transaction in get_last_n_transactions(example_block, 100):
+    print(extract_to_addresses(transaction))
