@@ -34,3 +34,9 @@ def extract_to_addresses(transaction):
         if x["value"] != 0:
             addresses.append((x["addr"], x["value"]))
     return addresses
+
+
+def extract_from_address(transaction):
+    return [(out['prev_out']['addr'], out['prev_out']['value'])
+            for out in transaction['inputs']
+            if out['prev_out']['value'] > 0]
