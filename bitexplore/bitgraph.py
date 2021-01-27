@@ -14,9 +14,12 @@ class BitGraph:
         nodes = []
         for transaction in self.transactions:
             nodes.append((transaction["hash"], {"color": "red"}))
-            for address in bq.extract_to_addresses(transaction):
-                edges.append((transaction["hash"], address[0], {"amount": address[1]}))
-                nodes.append((address[0], {"color": "blue"}))
+            for address_out in bq.extract_to_addresses(transaction):
+                edges.append((transaction["hash"], address_out[0], {'amount': address_out[1], 'color': 'green'}))
+                nodes.append((address_out[0], {"color": "blue"}))
+            for address_in in bq.extract_from_address(transaction):
+                edges.append((address_in[0], transaction["hash"], {'amount': address_in[1], 'color': 'red'}))
+                nodes.append((address_in[0], {"color": "blue"}))
         return edges, nodes
 
     def build_graph(self):
@@ -24,14 +27,13 @@ class BitGraph:
         graph.add_edges_from(self.edges)
         graph.add_nodes_from(self.nodes)
 
-        node_colors = [node[1]["color"] for node in graph.nodes(data=True)]
-        # edge_colors = [edge[2]["amount"] for edge in graph.edges(data=True)]
+        node_colors = [node[1]['color'] for node in graph.nodes(data=True)]
+        edge_colors = [edge[2]['color'] for edge in graph.edges(data=True)]
 
         options = {
-            # '"edge_color": edge_colors,
+            "edge_color": edge_colors,
             "node_color": node_colors,
             "width": 2,
-            # "edge_cmap": plt.cm.Blues,
             "with_labels": False,
         }
 
@@ -45,7 +47,7 @@ class BitGraph:
 
 if __name__ == '__main__':
     latest_block = bq.get_latest_block_hash()
-    transactions = bq.get_raw_block(latest_block)["tx"]
+    transactions = bq.get_raw_block(latest_block)["tx"][1:]
 
     btc_graph = BitGraph(transactions)
     btc_graph.visualise()
